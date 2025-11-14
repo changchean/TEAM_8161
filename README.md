@@ -3,7 +3,7 @@
 - 讀取交易流水帳資料、警示帳戶資料、待預測帳戶資料
 - 資料前處理，每個帳戶進行歸戶建立特徵，並且建立後續使用之模型所需項目
 - 切分出訓練、驗證、待預測資料集
-- 使用torch_geometric的圖神經網路進行訓練與預測
+- 使用 torch_geometric 的圖神經網路進行訓練與預測
 ## 環境配置
 - 查看 requirements.txt
 ## 使用方式
@@ -32,7 +32,7 @@
   - 單存載入前處理好資料及訓練好的模型做預測
 - currency_rate.pkl
   - 下載的匯率表
-- preprocess data.pt
+- preprocess data.7z 壓縮檔中 preprocess data.pt
   - 資料前處理後，包裝成圖神經網路所需的資料格式
 - final model.pt
   - 最後一次上傳成績的模型
@@ -52,7 +52,7 @@
 
 4.執行程式
 
-py 檔需在同一路徑下，路徑若不同，可於 main.py 、 inference.py 中 os.chdir 修改
+py 檔需在同一路徑下執行，使用之路徑可於 main.py 、 inference.py 中 os.chdir 修改
 - 整個流程   
         
         python main.py
@@ -76,3 +76,9 @@ py 檔需在同一路徑下，路徑若不同，可於 main.py 、 inference.py 
 - find_best_threshold(): 使用驗證集尋找最佳閾值的 F1
 - evaluate_model(): 使用最佳閾值對訓練集、驗證集及測試集進行預測計算 F1
 - save_prediction(): 儲存預測結果
+## 結果
+- 最佳閾值: 0.95
+- Train F1 Score: 0.6862
+- Val F1 Score: 0.5842
+- 上傳 Public F1: 0.784
+- 上傳 Private F1: 0.722222
