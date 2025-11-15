@@ -254,7 +254,7 @@ def training_loop(compiled_model, model, data, criterion, optimizer, scaler, dev
     '''
     best_auprc = 0
 
-    for epoch in range(2):
+    for epoch in range(1000):
         train_loss = train_model(compiled_model, data, criterion, optimizer, scaler, device)
         val_loss, val_auprc = validate_model(model, data, criterion, device)
         
