@@ -25,7 +25,7 @@
 - Preprocess 資料夾中 data_preprocess.py
   - 資料前處理，建立節點特徵、邊索引，切分訓練、驗證及測試遮蔽，特徵資料標準化，並包裝成圖神經網路所需的資料格式
 - Model 資料夾中 modeling.py
-  - 模型訓練、驗證及預測
+  - 模型訓練、驗證及預測的函式
 - main.py
   - 執行包含所有 data_preprocess.py 及 modeling.py 完整過程
 - inference.py
@@ -52,8 +52,8 @@
 
 4.執行程式
 
-py 檔需在同一路徑下執行，使用之路徑可於 main.py 、 inference.py 中 os.chdir 修改
-- 整個流程   
+所有 .py 檔需在同一路徑下執行，使用之路徑可於 main.py 、 inference.py 中 os.chdir 修改路徑
+- 執行整個流程   
         
         python main.py
 - 使用處理後的資料與已訓練好的模型進行預測   
@@ -62,10 +62,10 @@ py 檔需在同一路徑下執行，使用之路徑可於 main.py 、 inference.
   - 預測結果 predict ，可於 save_path 修改儲存路徑， file_name 修改檔名
 ## data_preprocessing.py
 ### 主要函式
-- mapping_currencies(): 轉換幣別金額
+- mapping_currencies(): 轉換幣別金額至新台幣
 - establish_features(): 建立帳戶清單、節點特徵及邊索引
 - train_val_test_split(): 切分出訓練、驗證及測試的遮罩
-- stand_scale(): 特徵資料進行標準化
+- stand_scale(): 進行特徵標準化
 - pack_data(): 資料包裝成圖神經網路所需之格式
 ## modeling.py
 ### 主要函式
@@ -73,12 +73,12 @@ py 檔需在同一路徑下執行，使用之路徑可於 main.py 、 inference.
 - set_seed(): 設定隨機種子
 - PULoss(): Positive-Unlabeled (PU) Learning 概念損失函式
 - GraphSAGE(): GraphSAGE 模型，並做加權的特徵融合
-- training_setups(): 設定損失函數、優化器等
+- training_setups(): 設定損失函數、PULoss 中先驗機率 (alpha) 及優化器等
 - train_model(): 訓練迭代
 - validate_model(): 驗證模型
 - training_loop(): 完整訓練循環
 - find_best_threshold(): 使用驗證集尋找最佳閾值的 F1
-- evaluate_model(): 使用最佳閾值對訓練集、驗證集及測試集進行預測並計算 F1
+- evaluate_model(): 評估模型，使用最佳閾值對訓練集、驗證集及測試集進行預測並計算 F1
 - save_prediction(): 儲存預測結果
 ## 結果
 - 最佳閾值: 0.95
