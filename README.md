@@ -62,7 +62,11 @@ py 檔需在同一路徑下執行，使用之路徑可於 main.py 、 inference.
   - 預測結果 predict ，可於 save_path 修改儲存路徑， file_name 修改檔名
 ## data_preprocessing.py
 ### 主要函式
-- data_preprocess(): 讀入資料，轉換所有金額至台幣金額，資料進行歸戶建立圖神經網路所需之節點特徵、邊索引，切分出訓練、驗證、待預測資料集，並進行資料標準化，資料包裝成圖神經網路所需之形式
+- mapping_currencies(): 轉換幣別金額。
+- establish_features(): 建立帳戶清單、節點特徵及邊索引。
+- train_val_test_split(): 切分出訓練、驗證及測試的遮罩。
+- stand_scale(): 特徵資料進行標準化。
+- pack_data(): 資料包裝成圖神經網路所需之格式
 ## modeling.py
 ### 主要函式
 - load_data(): 載入前處理好的資料
