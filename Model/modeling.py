@@ -44,8 +44,8 @@ def set_seed(seed):
 
 class PULoss(torch.nn.Module):
     '''
-    實現 Positive-Unlabeled (PU) Learning的損失函式。
-    此損失函式基於標準 Cross-Entropy Loss 進行修正，利用先驗機率 (alpha) 來估計在計算未標記樣本 (Unlabeled) loss 部分時，考慮有部分比例的正樣本損失，及去掉這部分比例的負樣本損失。
+    實現 Positive-Unlabeled (PU) Learning 的損失函式。
+    此損失函式基於 Cross-Entropy Loss 進行修正，利用先驗機率 (alpha) 來估計未標記樣本 (Unlabeled) 損失部分時，考慮有部分比例的正樣本損失，及去掉這部分比例的負樣本損失。
     
     Args:
         alpha (float): 先驗機率的估計值，即未標記樣本中正類的比例。
