@@ -11,14 +11,14 @@ from sklearn.metrics import average_precision_score, precision_score, recall_sco
 
 def load_data(data_path, predict_path):
     '''
-    載入前處理好的資料及要預測的帳戶檔案。
+    載入前處理好的資料物件及要預測的帳戶檔案。
 
     Args:
-        data_path (dict): 前處理包裝好的資料。
-        predict_path (pd.DataFrame): 待預測帳戶清單。
+        data_path (str): Data 物件檔案路徑。
+        predict_path (str): 待預測帳戶檔案路徑。
 
     Returns:
-        data: 包含所有節點特徵、邊索引的 Data 物件。
+        data: 包含所有節點特徵、邊索引及遮罩的 Data 物件。
         accounts: 所有帳戶。
         y: 警示帳戶標籤。
         predict: 待預測帳戶檔案。
@@ -44,8 +44,8 @@ def set_seed(seed):
 
 class PULoss(torch.nn.Module):
     '''
-    基於 cross entropy loss 修正的 Positive-Unlabeled (PU) 概念損失函式。
-    在計算未標記資料 loss 部分時，考慮有部分比例的正樣本損失，及去掉這部分比例的負樣本損失。
+    實現 Positive-Unlabeled (PU) Learning的損失函式。
+    此損失函式基於標準 Cross-Entropy Loss 進行修正，利用先驗機率 (alpha) 來估計在計算未標記樣本 (Unlabeled) loss 部分時，考慮有部分比例的正樣本損失，及去掉這部分比例的負樣本損失。
     
     Args:
         alpha (float): 先驗機率的估計值，即未標記樣本中正類的比例。
@@ -59,8 +59,8 @@ class PULoss(torch.nn.Module):
         計算 PU 損失。
         
         Args:
-            pred (torch.Tensor): 模型的 logit 輸出。
-            target (torch.Tensor): 標籤。
+            pred (torch.Tensor): 模型原始的 logit 輸出。
+            target (torch.Tensor): 標籤張量。
             
         Returns:
             loss: 計算出的 PU 損失值。
@@ -128,13 +128,14 @@ class GraphSAGE(torch.nn.Module):
     def forward(self, x, edge_index):
         '''
         前向傳播。
+        執行多層卷積、特徵融合和最終分類。
         
         Args:
             x (torch.Tensor): 節點特徵。
             edge_index (torch.Tensor): 邊索引。
             
         Returns:
-            x: 模型的 logit 輸出。
+            x: 模型最終的 logit 輸出。
         '''
         hiddens = []
 
@@ -156,7 +157,7 @@ class GraphSAGE(torch.nn.Module):
 
 def training_setups(model, data, device):
     '''
-    設定損失函數、優化器等。
+    配置訓練所需的損失函數、優化器、模型加速工具及混合精度管理器。
 
     Args:
         model (torch.nn.Module): 待訓練的模型。
@@ -165,7 +166,7 @@ def training_setups(model, data, device):
             
     Returns:
         criterion (PULoss): Positive-Unlabeled 損失函式。
-        optimizer (optim.Optimizer): 用於更新模型權重的優化器。
+        optimizer (optim.Optimizer): 用於更新模型權重的 Adam 優化器。
         compiled_model (torch.nn.Module): 使用 torch.compile 加速待訓練的模型。
         scaler (GradScaler): 用於混合精度訓練。
     '''
@@ -215,7 +216,7 @@ def train_model(compiled_model, data, criterion, optimizer, scaler, device):
 @torch.no_grad()
 def validate_model(model, data, criterion, device):
     '''
-    執行驗證。
+    在驗證集上執行模型評估，計算損失和 AUPRC。
 
     Args:
         model (torch.nn.Module): 待驗證的模型。
@@ -271,11 +272,11 @@ def training_loop(compiled_model, model, data, criterion, optimizer, scaler, dev
 
 def find_best_threshold(val_proba, val_true):
     '''
-    在驗證集上搜尋最佳的 F1 閾值。
-
+    在驗證集上搜尋能最大化 F1 Score 的二元分類閾值。
+    
     Args:
-        val_proba (float): 預測驗證集的機率值。
-        val_true (int): 驗證集真實標籤。
+        val_proba (np.array): 預測驗證集上的機率值
+        val_true (np.array): 驗證集真實標籤。
 
     Returns:
         best_threshold: 最佳閾值。
@@ -305,10 +306,10 @@ def find_best_threshold(val_proba, val_true):
     
 def evaluate_model(model, data, accounts, acct_test):
     '''
-    最佳模型評估及預測。
+    使用最佳模型權重進行最終評估和測試集預測。
 
     Args:
-        model (torch.nn.Module): 訓練好待驗證的模型。
+        model (torch.nn.Module): 訓練完成的模型。
         data (Data): 包含所有節點特徵和邊索引的 PyG Data 物件。
         accounts (list): 所有帳戶。
         acct_test (pd.DataFrame): 待預測帳戶清單。
