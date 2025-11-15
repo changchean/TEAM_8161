@@ -8,14 +8,14 @@ from torch_geometric.data import Data
 
 def mapping_currencies(acct_transaction, currencies_rate):
     '''
-    進行幣別的轉換。
+    將交易紀錄中的不同幣別金額，根據下載的的匯率，轉換為新臺幣。
 
     Args:
         acct_transaction (pd.DataFrame): 原始的帳戶交易紀錄資料。
         currencies_rate (pd.DataFrame): 預先下載好的匯率轉換檔案。
 
     Returns:
-        acct_transaction: 轉後幣別後的金額。
+        acct_transaction: 增加 'twd_rate' (轉換匯率) 及 'final_amt' (轉換為新台幣後的金額) 兩欄位的 DataFrame。
     '''
     rate_map = dict(zip(currencies_rate['currency'], currencies_rate['rate_to_twd']))
     rate_map['USD'] = currencies_rate.loc[currencies_rate['currency'] == 'TWD', 'Exrate'].iloc[0]
@@ -26,10 +26,10 @@ def mapping_currencies(acct_transaction, currencies_rate):
 
 def establish_features(acct_transaction, acct_alert, acct_test):
     '''
-    建立歸戶清單，帳戶節點特徵及邊索引。
+    建立帳戶清單，及執行圖神經網路所需的節點特徵所需的及邊索引。
 
     Args:
-        acct_transaction (pd.DataFrame): 原始的帳戶交易紀錄資料。
+        acct_transaction (pd.DataFrame): 經過幣別轉換後的帳戶交易紀錄資料。
         acct_alert (pd.DataFrame): 警示帳戶清單，用於產生標籤。
         acct_test (pd.DataFrame): 待預測帳戶清單。
     
@@ -37,9 +37,9 @@ def establish_features(acct_transaction, acct_alert, acct_test):
         accounts: 所有帳戶清單。
         yuanshan_accounts: 帳戶為玉山帳戶。
         test_accounts: 待預測的帳戶。
-        node_features:節點特徵。
+        node_features: 節點特徵。
         y: 標籤。
-        num_nodes: 帳戶數量。
+        num_nodes: 節點帳戶數量。
         edge_index: 邊索引。
     '''
     all_accounts = set(acct_transaction['from_acct'].unique()) | set(acct_transaction['to_acct'].unique())
@@ -144,7 +144,7 @@ def establish_features(acct_transaction, acct_alert, acct_test):
 
 def train_val_test_split(accounts, yuanshan_accounts, test_accounts, y, num_nodes):
     '''
-    切分出訓練、驗證及測試集。
+    切分出訓練、驗證及測試集的遮罩。
 
     Args:
         accounts (list): 所有帳戶清單。
@@ -193,7 +193,7 @@ def stand_scale(node_features, train_mask):
     特徵進行標準化。
 
     Args:
-        node_features (array): 各項特徵。
+        node_features (array): 節點特徵矩陣。
         train_mask (torch.tensor): 訓練遮罩。
     
     Returns:
