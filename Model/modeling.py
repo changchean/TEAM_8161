@@ -169,7 +169,7 @@ def training_setups(model, data, device):
         compiled_model (torch.nn.Module): 使用 torch.compile 加速待訓練的模型。
         scaler (GradScaler): 用於混合精度訓練。
     '''
-    # 計算 PU 損失函式的先驗參數 alpha
+    # 計算 PU 損失函式的先驗參數 alpha，假設未標記資料中有相同數量的正樣本
     alert_count = (data.y[data.train_mask] == 1).sum().item()
     unlabel_count = (data.y[data.train_mask] == 0).sum().item()
     prior_alpha = alert_count / unlabel_count
