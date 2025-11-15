@@ -11,11 +11,12 @@ if __name__ == '__main__':
     currencies_rate = pd.read_pickle('/mnt/d/AI CUP/Upload/currency_rate.pkl')
     save_path = '/mnt/d/AI CUP/Upload/'
     file_name = 'final_predict.csv'
-    data, accounts, y = data_preprocess(
-        acct_transaction = acct_transaction, 
-        acct_alert = acct_alert, 
-        acct_test = acct_test, 
-        currencies_rate = currencies_rate)
+    acct_transaction = mapping_currencies(acct_transaction, currencies_rate)
+    accounts, yuanshan_accounts, test_accounts, node_features, y, num_nodes, edge_index = establish_features(
+        acct_transaction, acct_alert, acct_test)
+    train_mask, val_mask, test_mask = train_val_test_split(accounts, yuanshan_accounts, test_accounts, y, num_nodes)
+    node_features_scaled = stand_scale(node_features, train_mask)
+    data = pack_data(node_features_scaled, edge_index, y, train_mask, val_mask, test_mask)
     set_seed(42)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = GraphSAGE(
