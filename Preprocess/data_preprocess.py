@@ -6,30 +6,42 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from torch_geometric.data import Data
 
-def data_preprocess(acct_transaction, acct_alert, acct_test, currencies_rate):
+def mapping_currencies(acct_transaction, currencies_rate):
     '''
-    載入、轉換交易資料，並建構圖神經網路所需的 Data 物件。
-
-    本函式執行資料前處理，將原始交易進行歸戶建立節點特徵、邊索引
-    切分訓練、驗證、待預測遮罩的 PyTorch Geometric Data 物件。
+    進行幣別的轉換。
 
     Args:
         acct_transaction (pd.DataFrame): 原始的帳戶交易紀錄資料。
-        acct_alert (pd.DataFrame): 警示帳戶清單，用於產生標籤。
-        acct_test (pd.DataFrame): 待預測帳戶清單。
         currencies_rate (pd.DataFrame): 預先下載好的匯率轉換檔案。
 
     Returns:
-        data: 包含所有節點特徵、邊索引的 Data 物件。
-        accounts: 所有帳戶。
-        y: 警示帳戶標籤。
+        acct_transaction: 轉後幣別後的金額。
     '''
-    # 進行幣別的轉換
     rate_map = dict(zip(currencies_rate['currency'], currencies_rate['rate_to_twd']))
     rate_map['USD'] = currencies_rate.loc[currencies_rate['currency'] == 'TWD', 'Exrate'].iloc[0]
     acct_transaction['twd_rate'] = acct_transaction['currency_type'].map(rate_map)
     acct_transaction['final_amt'] = acct_transaction['txn_amt'] * acct_transaction['twd_rate']
 
+    return acct_transaction
+
+def establish_features(acct_transaction, acct_alert, acct_test):
+    '''
+    建立歸戶清單，帳戶節點特徵及邊索引。
+
+    Args:
+        acct_transaction (pd.DataFrame): 原始的帳戶交易紀錄資料。
+        acct_alert (pd.DataFrame): 警示帳戶清單，用於產生標籤。
+        acct_test (pd.DataFrame): 待預測帳戶清單。
+    
+    Returns:
+        accounts: 所有帳戶清單。
+        yuanshan_accounts: 帳戶為玉山帳戶。
+        test_accounts: 待預測的帳戶。
+        node_features:節點特徵。
+        y: 標籤。
+        num_nodes: 帳戶數量。
+        edge_index: 邊索引。
+    '''
     all_accounts = set(acct_transaction['from_acct'].unique()) | set(acct_transaction['to_acct'].unique())
     accounts = sorted(list(all_accounts))
     account_to_idx = {acc: idx for idx, acc in enumerate(accounts)}
@@ -128,7 +140,24 @@ def data_preprocess(acct_transaction, acct_alert, acct_test, currencies_rate):
     edge_index = torch.tensor(edge_list, dtype = torch.long).t().contiguous()
     edge_index = to_undirected(edge_index)
 
-    # 切分出訓練、驗證及測試集，並進行標準化
+    return accounts, yuanshan_accounts, test_accounts, node_features, y, num_nodes, edge_index
+
+def train_val_test_split(accounts, yuanshan_accounts, test_accounts, y, num_nodes):
+    '''
+    切分出訓練、驗證及測試集。
+
+    Args:
+        accounts (list): 所有帳戶清單。
+        yuanshan_accounts (set): 帳戶為玉山帳戶。
+        test_accounts (set): 待預測的帳戶。
+        y (torch.tensor): 標籤。
+        num_nodes (int): 帳戶數量。
+    
+    Returns:
+        train_mask: 訓練遮罩。
+        val_mask: 驗證遮罩。
+        test_mask: 測試遮罩。
+    '''
     train_val_indices = []
     test_indices = []
 
@@ -157,6 +186,19 @@ def data_preprocess(acct_transaction, acct_alert, acct_test, currencies_rate):
     for idx in test_indices:
         test_mask[idx] = True
 
+    return train_mask, val_mask, test_mask
+
+def stand_scale(node_features, train_mask):
+    '''
+    特徵進行標準化。
+
+    Args:
+        node_features (array): 各項特徵。
+        train_mask (torch.tensor): 訓練遮罩。
+    
+    Returns:
+        node_features_scaled: 標準化後的特徵結果
+    '''
     scaler = StandardScaler()
     node_features_scaled = node_features.copy()
     train_features = node_features[train_mask]
@@ -164,6 +206,23 @@ def data_preprocess(acct_transaction, acct_alert, acct_test, currencies_rate):
     node_features_scaled = scaler.transform(node_features)
     node_features_scaled = node_features_scaled.astype(np.float32)
 
+    return node_features_scaled
+
+def pack_data(node_features_scaled, edge_index, y, train_mask, val_mask, test_mask):
+    '''
+    包裝資料成後續圖神經網路所需的的 Data 物件。
+
+    Args:
+        node_features_scaled (array): 標準化後的特徵結果。
+        edge_index (torch.tensor): 邊索引。
+        y (torch.tensor): 標籤。
+        train_mask (torch.tensor): 訓練遮罩。
+        val_mask (torch.tensor): 驗證遮罩。
+        test_mask (torch.tensor): 測試遮罩。
+
+    Returns:
+        data: 包含所有節點特徵、邊索引的 Data 物件。
+    '''
     x = torch.tensor(node_features_scaled, dtype = torch.float32)
 
     data = Data(
@@ -174,4 +233,4 @@ def data_preprocess(acct_transaction, acct_alert, acct_test, currencies_rate):
         val_mask = val_mask,
         test_mask = test_mask)
 
-    return data, accounts, y
+    return data
