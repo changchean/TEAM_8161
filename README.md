@@ -18,7 +18,7 @@
 - 安裝指令
 
         pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https://download.pytorch.org/whl/cu128
-        pip install pandas==2.3.0 requests numpy==2.3.3 torch_geometric scikit-learn==1.7.0
+        pip install pandas==2.3.0 requests numpy==2.3.3 torch-geometric scikit-learn==1.7.0
 2.檔案說明
 - download currencies rate.py
   - 下載貨幣匯率，並進行各貨幣對台幣的匯率
