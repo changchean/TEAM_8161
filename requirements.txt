@@ -1,7 +1,7 @@
 系統 == WSL2 Ubuntu 22.04
 python == 3.11.13
 gpu == NVIDIA GeForce RTX 5060 Laptop GPU 
-panda == 2.3.0
+pandas == 2.3.0
 requests == 2.32.4
 numpy == 2.3.3
 torch == 2.7.1+cu128
