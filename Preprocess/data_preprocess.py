@@ -26,7 +26,7 @@ def mapping_currencies(acct_transaction, currencies_rate):
 
 def establish_features(acct_transaction, acct_alert, acct_test):
     '''
-    建立帳戶清單，及執行圖神經網路所需的節點特徵所需的及邊索引。
+    建立帳戶清單及執行圖神經網路所需的節點特徵及邊索引。
 
     Args:
         acct_transaction (pd.DataFrame): 經過幣別轉換後的帳戶交易紀錄資料。
@@ -39,7 +39,7 @@ def establish_features(acct_transaction, acct_alert, acct_test):
         test_accounts: 待預測的帳戶。
         node_features: 節點特徵。
         y: 標籤。
-        num_nodes: 節點帳戶數量。
+        num_nodes: 所有帳戶數量。
         edge_index: 邊索引。
     '''
     all_accounts = set(acct_transaction['from_acct'].unique()) | set(acct_transaction['to_acct'].unique())
@@ -121,8 +121,7 @@ def establish_features(acct_transaction, acct_alert, acct_test):
                 to_agg.loc[acct, 'payer_diversity'],
                 to_agg.loc[acct, 'to_amt_cv'],
                 to_agg.loc[acct, 'to_self_txn_ratio'],           
-                to_agg.loc[acct, 'to_avg_payer_txn']
-                ])
+                to_agg.loc[acct, 'to_avg_payer_txn']])
         else:
             features.extend([0] * 14)
         
