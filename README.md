@@ -27,8 +27,6 @@
         pip install torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https://download.pytorch.org/whl/cu128
         pip install pandas==2.3.0 requests numpy==2.3.3 torch-geometric scikit-learn==1.7.0
 2.檔案說明
-- download currencies rate.py
-  - 下載貨幣匯率，計算各貨幣對台幣的匯率
 - Preprocess 資料夾中 data_preprocess.py
   - 資料前處理，建立節點特徵、邊索引，切分訓練、驗證及測試遮蔽，特徵資料標準化，並包裝成圖神經網路所需的資料格式
 - Model 資料夾中 modeling.py
@@ -37,12 +35,16 @@
   - 執行包含所有 data_preprocess.py 及 modeling.py 完整過程
 - inference.py
   - 單存載入前處理好資料及訓練好的模型做預測
+- download currencies rate.py
+  - 下載貨幣匯率，計算各貨幣對台幣的匯率
 - currency_rate.pkl
   - 下載的匯率表
 - preprocess data.7z 壓縮檔中 preprocess data.pt
   - 資料前處理後，包裝成圖神經網路所需的資料格式
 - final model.pt
   - 最後一次上傳成績的模型
+- requirements.txt
+  - 執行環境與套件版本 
 
 3.資料準備
 
@@ -60,6 +62,7 @@
 4.執行程式
 
 所有 .py 檔需在同一路徑下執行，使用之路徑可於 main.py 、 inference.py 中 os.chdir 修改路徑
+執行程式所需資料，分別對應第三部分資料準備中所註記
 - 執行整個流程   
         
         python main.py
