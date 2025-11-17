@@ -40,7 +40,7 @@
 - currency_rate.pkl
   - 下載的匯率表
 - preprocess data.7z 壓縮檔中 preprocess data.pt
-  - 資料前處理後，包裝成圖神經網路所需的資料格式
+  - 資料前處理後，包裝成圖神經網路所需的資料格式檔案
 - final model.pt
   - 最後一次上傳成績的模型
 - requirements.txt
@@ -48,7 +48,7 @@
 
 3.資料準備
 
-資料路徑若不同，可於 main.py 、 inference.py 中修改
+檔案路徑若不同，可於 main.py 、 inference.py 中修改
 - 執行整個流程
   - acct_transaction.csv
   - acct_alert.csv
@@ -61,7 +61,7 @@
 
 4.執行程式
 
-所有 .py 檔需在同一路徑下執行，使用之路徑可於 main.py 、 inference.py 中 os.chdir 修改路徑
+所有 .py 檔案需在同一路徑下執行，使用之路徑可於 main.py 、 inference.py 中 os.chdir 修改路徑
 執行程式所需資料，分別對應第三部分資料準備中所註記
 - 執行整個流程   
         
@@ -69,7 +69,7 @@
 - 使用處理後的資料與已訓練好的模型進行預測   
 
         python inference.py
-  - 預測結果 predict ，可於 save_path 修改儲存路徑， file_name 修改檔名
+  - 預測結果 predict ，可於 main.py 、 inference.py 中 save_path 修改儲存路徑， file_name 修改檔名
 ## data_preprocessing.py
 ### 主要函式
 - mapping_currencies(): 轉換幣別金額至新台幣
@@ -87,12 +87,12 @@
 - train_model(): 訓練迭代
 - validate_model(): 驗證模型
 - training_loop(): 完整訓練循環
-- find_best_threshold(): 使用驗證集尋找最佳閾值的 F1
-- evaluate_model(): 評估模型，使用最佳閾值對訓練集、驗證集及測試集進行預測並計算 F1
+- find_best_threshold(): 使用驗證集尋找最佳閾值的 F1 score
+- evaluate_model(): 評估模型，使用最佳閾值對訓練集、驗證集及測試集進行預測並計算 F1 score
 - save_prediction(): 儲存預測結果
 ## 結果
 - 最佳閾值: 0.95
 - Train F1 Score: 0.6862
 - Val F1 Score: 0.5842
-- 上傳 Public F1: 0.784
-- 上傳 Private F1: 0.722222
+- 上傳 Public F1 score: 0.784
+- 上傳 Private F1 score: 0.722222
