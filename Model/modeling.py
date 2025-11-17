@@ -153,6 +153,7 @@ class GraphSAGE(torch.nn.Module):
         
         # 分類器輸出
         x = self.classifier(x)
+        
         return x
 
 def training_setups(model, data, device):
@@ -170,7 +171,7 @@ def training_setups(model, data, device):
         compiled_model (torch.nn.Module): 使用 torch.compile 加速待訓練的模型。
         scaler (GradScaler): 用於混合精度訓練。
     '''
-    # 計算 PU 損失函式的先驗參數 alpha，假設未標記資料中有相同數量的正樣本
+    # 計算 PU 損失函式的先驗參數 alpha，假設未標記資料 (即為負類樣本) 中有相同數量的正類樣本
     alert_count = (data.y[data.train_mask] == 1).sum().item()
     unlabel_count = (data.y[data.train_mask] == 0).sum().item()
     prior_alpha = alert_count / unlabel_count
@@ -226,7 +227,7 @@ def validate_model(model, data, criterion, device):
     
     Returns:
         val_loss.item(): 驗證損失。
-        ap: 驗證 AUPRC。
+        ap: 驗證集 AUPRC。
     '''
     model.eval()
     
@@ -245,7 +246,7 @@ def training_loop(compiled_model, model, data, criterion, optimizer, scaler, dev
     執行完整訓練循環。
     
     Args:
-        compiled_model (torch.nn.Module): 使用 torch.compile 加速待訓練的模型。
+        compiled_model (torch.nn.Module): 使用 torch.compile 加速訓練的模型。
         model (torch.nn.Module): 待驗證的模型。
         data (Data): 包含所有節點特徵和邊索引的 PyG Data 物件。
         criterion (PULoss): Positive-Unlabeled 損失函式。
@@ -329,7 +330,7 @@ def evaluate_model(model, data, accounts, acct_test):
     # 搜尋最佳 F1 閾值
     best_threshold, best_f1 = find_best_threshold(val_proba, val_true)
     
-    # 最終預測與整體 F1 分數報告
+    # 最終預測與訓練、驗證集 F1 分數
     final_pred_labels = (F.softmax(out, dim=1)[:, 1].cpu().numpy() >= best_threshold).astype(int)
 
     train_mask_np = data.train_mask.cpu().numpy()
