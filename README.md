@@ -87,12 +87,12 @@
 - train_model(): 訓練迭代
 - validate_model(): 驗證模型
 - training_loop(): 完整訓練循環
-- find_best_threshold(): 使用驗證集尋找最佳閾值的 F1 score
-- evaluate_model(): 評估模型，使用最佳閾值對訓練集、驗證集及測試集進行預測並計算 F1 score
+- find_best_threshold(): 使用驗證集尋找最佳閾值的 F1 Score
+- evaluate_model(): 評估模型，使用最佳閾值對訓練集、驗證集及測試集進行預測並計算 F1 Score
 - save_prediction(): 儲存預測結果
 ## 結果
 - 最佳閾值: 0.95
 - Train F1 Score: 0.6862
 - Val F1 Score: 0.5842
-- 上傳 Public F1 score: 0.784
-- 上傳 Private F1 score: 0.722222
+- 上傳 Public F1 Score: 0.784
+- 上傳 Private F1 Score: 0.722222
